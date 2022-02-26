@@ -1,34 +1,45 @@
-
 from pydantic import BaseModel, Field, validator
 from datetime import date
 
 
-
-class User(BaseModel):
+class UserSchemas(BaseModel):
     id: int
     username: str
     email: str
-    first_name: str = Field(default=None)
-    last_name: str = Field(default=None)
-    created_at: date
-    is_active: bool
-    is_superuser: bool
 
     class Config:
         orm_mode = True
 
 
-class UserCreateUpdate(BaseModel):
-    username: str = Field(..., min_length=6, max_length=127)
+class User(BaseModel):
+    username: str = Field(..., min_length=5, max_length=127)
     email: str = Field(..., min_length=9, max_length=127)
-    first_name: str = Field(default=None)
-    last_name: str = Field(default=None)
-    is_active: bool = Field(default=False)
-    is_superuser: bool = Field(default=False)
-    password: str = Field(..., min_length=8, max_length=127)
+    password: str = Field(..., min_length=8, max_length=63)
 
     class Config:
         orm_mode = True
+        schema_extra = {
+            "example": {
+                "username": "LeVaSiK",
+                "email": "lev201611@gmail.com",
+                "password": "LeVaSiK123#"
+            }
+        }
+
+
+class UserLogin(BaseModel):
+    email: str = Field(...)
+    password: str = Field(...)
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "username": "LeVaSiK",
+                "password": "LeVaSiK123#"
+            }
+        }
+
 
 
 class Item(BaseModel):
@@ -38,10 +49,10 @@ class Item(BaseModel):
     created_at: date
     price: int
     on_offer: bool
-    category_id: int
 
     class Config:
         orm_mode=True
+        allow_population_by_field_name = True
 
 
 class ItemCreate(BaseModel):
@@ -61,6 +72,7 @@ class ItemCreate(BaseModel):
 
     class Config:
         orm_mode=True
+        allow_population_by_field_name = True
 
 
 class ItemUpdate(BaseModel):
@@ -71,15 +83,24 @@ class ItemUpdate(BaseModel):
 
     class Config:
         orm_mode=True
+        allow_population_by_field_name = True
 
 
 class Category(BaseModel):
     id: int
     name: str
-    items: list[Item] = []
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
+
+
+class CategoryAdd(BaseModel):
+    id: int
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class CategoryCreateUpdate(BaseModel):
@@ -87,3 +108,12 @@ class CategoryCreateUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
+
+
+class ItemSchema(Item):
+    categorys: list[Category] = []
+
+
+class CategorySchema(Category):
+    items: list[Item] = []
